@@ -1,28 +1,45 @@
-# Group 11 repository
+# Car Workshop System
 
-## Members
-Amir Amangeldiyev  
-Anton Averianov  
-Mher Avetisyan  
-Noel Leon Görmez  
-Chingiz Kuanyshbay  
-Sadeem Nasr  
-Petar Nedyalkov  
-Zeinelabeddine Zayoun    
+## Description
+The Car Workshop System is a REST API-based application designed to manage car service reservations efficiently. It allows customers to book appointments, track service progress, and receive invoices. The system follows the Scrum framework for agile development and is implemented using Java and MongoDB.
 
-Tutor: Paulo 
+## Features
+- **User Registration & Authentication**
+- **Car Service Reservation System**
+- **Service Status Tracking**
+- **Invoice Generation**
+- **Admin Dashboard for Workshop Management**
 
-## Repository structure
-```
-ReservationSystemTemplate       Template Repository for student projects
-│   README.md
-│   pom.xml                     Maven build description
-│   .gitignore                  Git configuration -> makes sure you don't publish local settings like the .idea folder
-└───Documentation
-│       Requirements_Analysis_Document_Cinema_Case.pdf
-│       Requirements_Analysis_Document_Reservation_System.docx
-└───SQL Scripts                 Scripts to setup database
-└───src
-    └───main                    Source codes and resources
-    └───test                    JUnit tests
-```
+## Tech Stack
+- **Programming Language:** Java
+- **Frameworks & Tools:** Spring Boot, JavaFX
+- **Database:** MongoDB
+- **Build Tool:** Maven
+- **Version Control:** Git
+
+## Installation Guide
+To set up and run the project, follow these steps:
+
+1. **Install MongoDB**: Ensure MongoDB is installed and running on your system.
+2. **Set up the database**: run the setupDatabaseAndTableResSystem.sql file
+3. **Build the Project with Maven**:
+   - Navigate to the project root directory.
+   - Run `mvn lifecycle install`.
+4. **Start the REST Server**:
+   - Run the backend service.
+5. **Run the JavaFX Client**:
+   - In Maven, go to `Plugins -> javafx -> javafx:run` to start the frontend.
+
+## Usage
+- Users can create an account and book car service appointments.
+- Workshop admins can manage reservations and track service progress.
+- The system generates invoices upon service completion.
+
+## Contributors
+- Petar Nedyalkov (Main Developer)
+- Group 11 Team Members:
+- Amir Amangeldiyev, Anton Averianov, Mher Avetisyan, Noel Leon Görmez, Chingiz Kuanyshbay, Sadeem Nasr, Zeinelabeddine Zayoun
+
+
+## License
+This project is licensed under [MIT License](LICENSE).

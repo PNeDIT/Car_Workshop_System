@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- DO NOT CHANGE THE CONTENT OF THIS LAYOUT, UNLESS YOU WANT TO IMPLEMENT ADVANCED OPERATIONS
+OR WORK ON THE EXTRA REQUIREMENTS! -->
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<ScrollPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+                      fx:controller="gui.controller.authentication.SignUpDialogController"
+                      fitToWidth="true" fitToHeight="true">
+    <VBox>
+       <Label styleClass="headingLabel" text="Sign-up">
+          <padding>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <Pane prefHeight="30.0" prefWidth="200.0"/>
+       <Label text="First name">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <TextField fx:id="firstNameTextField" prefHeight="26.0" prefWidth="670.0" promptText="First name">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </TextField>
+       <Label text="Last name">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <TextField fx:id="lastNameTextField" prefHeight="26.0" prefWidth="670.0" promptText="Last name">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </TextField>
+       <Label text="E-mail address">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <TextField fx:id="emailTextField" prefHeight="26.0" prefWidth="670.0" promptText="E-mail">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </TextField>
+       <Label text="Password">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <PasswordField fx:id="passwordTextField" promptText="Password">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </PasswordField>
+       <Label text="Repeat password">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <PasswordField fx:id="passwordRepeatTextField" promptText="Repeat password">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </PasswordField>
+
+        <Label text="Security Question">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <ComboBox fx:id="securityQuestionComboBox" prefHeight="26.0" prefWidth="670.0">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </ComboBox>
+
+       <Label text="Security Answer">
+             <padding>
+                <Insets left="10.0" right="10.0" top="10.0"/>
+             </padding>
+          </Label>
+          <TextField fx:id="securityAnswerTextField" prefHeight="26.0" prefWidth="670.0" promptText="Answer to security question">
+             <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+             </VBox.margin>
+          </TextField>
+
+       <Label text="Vehicle Registration Number (optional)">
+          <padding>
+             <Insets left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <TextField fx:id="vehicleRegistrationNumberTextField" promptText="Vehicle registration number (optional)">
+          <VBox.margin>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </VBox.margin>
+       </TextField>
+
+       <Label text="Phone number (optional)">
+             <padding>
+                <Insets left="10.0" right="10.0" top="10.0"/>
+             </padding>
+          </Label>
+          <TextField fx:id="phoneNumberTextField" promptText="Phone number (optional)">
+             <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+             </VBox.margin>
+          </TextField>
+
+       <Label fx:id="errorMessageLabel" textFill="RED">
+          <padding>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </Label>
+       <ButtonBar prefHeight="40.0" prefWidth="200.0">
+          <buttons>
+             <Button mnemonicParsing="false" onAction="#onCancelButtonClicked" text="Cancel"/>
+             <Button mnemonicParsing="false" onAction="#onSignupButtonClicked" text="Sign up"/>
+          </buttons>
+          <padding>
+             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+          </padding>
+       </ButtonBar>
+    </VBox>
+</ScrollPane>

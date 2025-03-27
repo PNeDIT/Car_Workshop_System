@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="1000" prefWidth="622.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.information.AppointmentPanelController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+    <Label fx:id="appointmentLabel" styleClass="headingLabel" text="Service Appointment"/>
+
+    <GridPane>
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="127.0"/>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="455.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="30.0" prefHeight="40.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="30.0" prefHeight="40.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="30.0" prefHeight="40.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="30.0" prefHeight="40.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="30.0" prefHeight="40.0" vgrow="NEVER"/>
+            <RowConstraints minHeight="200.0" prefHeight="400.0" vgrow="ALWAYS"/>
+        </rowConstraints>
+
+        <Label styleClass="boldLabel" text="Workshop:">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+        <Label fx:id="workshopLabel" GridPane.columnIndex="1">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+
+        <Label styleClass="boldLabel" text="Service:" GridPane.rowIndex="1">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+        <Label fx:id="serviceLabel" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+
+        <Label styleClass="boldLabel" text="Selected Technician:" GridPane.rowIndex="2">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+        <Label fx:id="selectedTechnicianLabel" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+
+        <Label styleClass="boldLabel" text="Scheduled Time:" GridPane.rowIndex="3">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+        <Label fx:id="scheduledTimeLabel" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+
+        <Label styleClass="boldLabel" text="Payment Method:" GridPane.rowIndex="4">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+        <Label fx:id="paymentMethodLabel" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+        </Label>
+
+        <Label styleClass="boldLabel" text="Select Date:" GridPane.rowIndex="5"/>
+        <DatePicker fx:id="datePicker" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+        <HBox GridPane.columnIndex="1" GridPane.rowIndex="6" spacing="10" GridPane.hgrow="ALWAYS">
+            <TableView fx:id="appointmentsTableView" minHeight="200.0" prefHeight="400.0" prefWidth="450.0"
+                       HBox.hgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="appointmentColumn" text="Available Appointments" minWidth="200" prefWidth="350" maxWidth="450"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+                <style>
+                    -fx-table-cell-border-color: transparent;
+                </style>
+            </TableView>
+            <GridPane fx:id="buttonGridPane" HBox.hgrow="NEVER" prefWidth="50"/>
+        </HBox>
+    </GridPane>
+
+    <ButtonBar prefHeight="40.0" prefWidth="200.0">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onCancelButtonClicked" text="Cancel"/>
+            <Button fx:id="reserveButton" defaultButton="true" mnemonicParsing="false" onAction="#onReserveButtonClicked" text="Reserve Appointment">
+                <style>
+                    -fx-background-color: #e74c3c;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 4;
+                    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 2);
+                </style>
+                <padding>
+                    <Insets top="8" right="15" bottom="8" left="15"/>
+                </padding>
+            </Button>
+        </buttons>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </ButtonBar>
+
+    <Region prefHeight="50.0" prefWidth="600.0"/>
+
+    <Label fx:id="noModificationLabel" prefWidth="622.0" textFill="RED">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+
+    <HBox fx:id="noAccountBox" prefWidth="600.0">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+        <Label prefWidth="315.0" text="To book an appointment, you must log in or create an account." wrapText="true"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="logInButton" mnemonicParsing="false" onAction="#onLogInButtonClicked" text="Log in"/>
+        <Button fx:id="createAccountButton" mnemonicParsing="false" onAction="#onCreateAccountButtonClicked" text="Create Account">
+            <HBox.margin>
+                <Insets left="10.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>

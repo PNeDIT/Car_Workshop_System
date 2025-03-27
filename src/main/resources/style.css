@@ -1,0 +1,50 @@
+/* TODO: if you want you can add further properties to format your
+ * FXML-components, this is however not mandatory.
+ */
+
+/* ----------------- DO NOT CHANGE THE FOLLOWING PART OF THE CODE ----------------- */
+.root{
+	-fx-font-family: 'Helvetica', Arial, sans-serif;
+	-fx-font-size: 14.0px;	
+}
+
+.headingLabel{
+	-fx-font-size: 32.0px;	
+}
+
+.smallHeadingLabel{
+	-fx-font-size: 25.0px;	
+}
+
+.standardLabel{
+	-fx-font-size: 20.0px;
+	-fx-font-weight: bold;	
+	-fx-text-fill:  #5c5c5c;
+}
+
+.boldLabel{
+	-fx-font-weight: bold;
+}
+
+#playtimeWrapScrollPane{
+	-fx-background-color:transparent;
+}
+
+.table-view .table-row-cell:pastReservationSelected .text{
+	-fx-fill: #e8e8e8; 
+}
+
+.table-view .table-row-cell:pastReservation .text{
+    -fx-fill: #b3b3b3; 
+}
+
+.table-view .scroll-bar * {
+    -fx-min-width: 0.0;
+    -fx-pref-width: 0.0;
+    -fx-max-width: 0.0;
+
+    -fx-min-height: 0.0;
+    -fx-pref-height: 0.0;
+    -fx-max-height: 0.0;
+}
+/* ---------------------------------- END ---------------------------------- */

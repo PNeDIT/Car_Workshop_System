@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- DO NOT CHANGE THE CONTENT OF THIS LAYOUT, UNLESS YOU WANT TO IMPLEMENT ADVANCED OPERATIONS
+OR WORK ON THE EXTRA REQUIREMENTS! -->
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.authentication.LogInDialogController">
+    <Label styleClass="headingLabel" text="Login">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+    <Pane prefHeight="30.0" prefWidth="200.0"/>
+    <Label text="E-mail address">
+        <padding>
+            <Insets left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+    <TextField fx:id="emailTextfield" prefHeight="26.0" prefWidth="670.0" promptText="E-mail">
+        <VBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </VBox.margin>
+    </TextField>
+    <Label text="Password">
+        <padding>
+            <Insets left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+    <TextField fx:id="passwordTextfield" promptText="Password">
+        <VBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </VBox.margin>
+    </TextField>
+    <Label fx:id="errorMessageLabel" textFill="RED">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </Label>
+    <ButtonBar prefHeight="40.0" prefWidth="200.0">
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#onCancelButtonClicked" text="Cancel"/>
+            <Button mnemonicParsing="false" onAction="#onLoginButtonClicked" text="Login"/>
+        </buttons>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </ButtonBar>
+</VBox>

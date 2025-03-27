@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fx:id="scrollPane" fitToWidth="true" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controller.information.WorkshopInformationPanelController">
+    <VBox prefWidth="600.0">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+
+        <Label fx:id="workshopNameLabel" styleClass="headingLabel"/>
+
+        <Region prefHeight="20.0"/>
+
+        <Label styleClass="standardLabel" text="Address:"/>
+        <Label fx:id="locationLabel" wrapText="true"/>
+
+        <Label styleClass="standardLabel" text="Contact Information:"/>
+        <Label fx:id="contactInfoLabel" wrapText="true"/>
+
+        <Region prefHeight="20.0"/>
+
+        <Label styleClass="standardLabel" text="Description:"/>
+        <Label fx:id="descriptionLabel" wrapText="true"/>
+
+        <Region prefHeight="20.0"/>
+
+        <Label styleClass="standardLabel" text="Available Services:"/>
+        <ListView fx:id="serviceListView" onMouseClicked="#onServiceClicked" prefHeight="120.0"/>
+
+        <VBox fx:id="serviceInformationPanel" visible="false">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+            <padding>
+                <Insets top="20.0"/>
+            </padding>
+
+            <Label fx:id="serviceNameLabel" styleClass="smallHeadingLabel"/>
+
+            <GridPane>
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                </rowConstraints>
+
+                <Label styleClass="boldLabel" text="Name:" GridPane.rowIndex="0"/>
+                <Label fx:id="serviceNameLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label styleClass="boldLabel" text="Duration:" GridPane.rowIndex="1"/>
+                <Label fx:id="serviceDurationLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label styleClass="boldLabel" text="Price:" GridPane.rowIndex="2"/>
+                <Label fx:id="servicePriceLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+
+            <Region prefHeight="20.0"/>
+            <Label styleClass="standardLabel" text="Service Description:"/>
+            <Label fx:id="serviceDescriptionLabel" wrapText="true"/>
+
+            <Label text="Select Technician:" styleClass="boldLabel">
+                <VBox.margin>
+                    <Insets top="10.0"/>
+                </VBox.margin>
+            </Label>
+            <ComboBox fx:id="technicianComboBox" prefWidth="200">
+                <VBox.margin>
+                    <Insets bottom="10.0"/>
+                </VBox.margin>
+            </ComboBox>
+
+            <Label text="Select Date:" styleClass="boldLabel">
+                <VBox.margin>
+                    <Insets top="10.0"/>
+                </VBox.margin>
+            </Label>
+            <DatePicker fx:id="datePicker">
+                <VBox.margin>
+                    <Insets bottom="10.0"/>
+                </VBox.margin>
+            </DatePicker>
+
+            <Region prefHeight="20.0"/>
+
+            <Label styleClass="standardLabel" text="Available Appointments:"/>
+            <ScrollPane fx:id="scheduleScrollPane" fitToHeight="true" prefHeight="170.0">
+                <GridPane fx:id="scheduleGridPane">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                </GridPane>
+            </ScrollPane>
+
+            <Region prefHeight="20.0"/>
+
+            <ButtonBar>
+                <buttons>
+                    <Button fx:id="bookAppointmentButton" mnemonicParsing="false"
+                            onAction="#onBookAppointmentClicked" text="Book Appointment"/>
+                </buttons>
+            </ButtonBar>
+
+            <Label fx:id="messageLabel"
+                   text="Select a time slot to proceed with booking."
+                   wrapText="true"/>
+        </VBox>
+    </VBox>
+</ScrollPane>

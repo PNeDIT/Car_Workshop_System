@@ -375,6 +375,9 @@ public class RestClient {
 
             boolean success = jsonResponse.getStatus() == 201;
             System.out.println("RestClient - Operation " + (success ? "successful" : "failed") + " (Status: " + jsonResponse.getStatus() + ")");
+            if (success) {
+                updateTokensOfUser();
+            }
             return success;
         } catch (Exception e) {
             System.err.println("\nRestClient - Error creating appointment:");
@@ -508,6 +511,41 @@ public class RestClient {
         
         List<JsonObject> technicians = mapStringToJsonObjectList(jsonResponse.getBody().toString());
         return technicians;
+    }
+
+    private void updateTokensOfUser() {
+        if (user != null) {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get("/customer/tokens")
+                .queryString(StringNames.customer_id, user.getId())
+                .header(StringNames.authorization, user.getAuthorization())
+                .asJson();
+
+            if (jsonResponse.getStatus() == 200) {
+                List<JsonObject> result = mapStringToJsonObjectList(jsonResponse.getBody().toString());
+                if (!result.isEmpty()) {
+                    int tokens = result.get(0).get("tokens").getAsInt();
+                    user.setTokens(tokens);
+                }
+            }
+        }
+    }
+
+    public boolean redeemTokens(int tokensToRedeem) {
+        if (user == null || tokensToRedeem <= 0) {
+            return false;
+        }
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.put("/tokens/redeem")
+            .queryString(StringNames.customer_id, user.getId())
+            .queryString(StringNames.tokens, tokensToRedeem)
+            .header(StringNames.authorization, user.getAuthorization())
+            .asJson();
+
+        boolean success = jsonResponse.getStatus() == 200;
+        if (success) {
+            updateTokensOfUser();
+        }
+        return success;
     }
 }
 

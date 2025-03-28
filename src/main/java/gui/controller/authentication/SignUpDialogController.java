@@ -156,7 +156,9 @@ public class SignUpDialogController extends Controller implements Initializable 
                 // customer could be created successfully
                 // create user and pass to RestClient (split up necessary because of
                 // authorization)
-                User user = new User(firstname, lastname, email, password);
+                User user = new User(firstNameTextField.getText(), lastNameTextField.getText(),
+                        emailTextField.getText(), passwordTextField.getText());
+                user.setTokens(0); // Initialize tokens to 0
                 restClient.setUser(user);
                 List<JsonObject> clientInfo = restClient.getUserInfoByMail(email);
                 user.setId(clientInfo.get(0).get("id").getAsInt());

@@ -73,5 +73,14 @@
                 </padding>
             </GridPane>
         </GridPane>
+        <VBox spacing="10" alignment="CENTER">
+            <Label text="Loyalty Tokens" style="-fx-font-weight: bold"/>
+            <Label fx:id="tokensLabel" text="Available Tokens: 0"/>
+            <ProgressBar fx:id="tokensProgressBar" progress="0.0" prefWidth="200"/>
+            <HBox spacing="10" alignment="CENTER">
+                <ChoiceBox fx:id="redeemTokensChoiceBox"/>
+                <Button fx:id="redeemTokensButton" text="Redeem Tokens" onAction="#onRedeemActionClicked"/>
+            </HBox>
+        </VBox>
     </VBox>
 </ScrollPane>

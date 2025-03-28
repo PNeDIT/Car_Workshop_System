@@ -26,6 +26,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.ArrayList;
+import javafx.collections.FXCollections;
 /**
  * Controller for managing user profile and displaying service reservations.
  */
@@ -50,6 +52,14 @@ public class ProfilePanelController extends Controller implements Initializable 
     private TableView<Appointment> appointmentsTableView;
     @FXML
     private GridPane buttonGridPane;
+    @FXML
+    private Label tokensLabel;
+    @FXML
+    private ProgressBar tokensProgressBar;
+    @FXML
+    private ChoiceBox<Integer> redeemTokensChoiceBox;
+    @FXML
+    private Button redeemTokensButton;
     // ------------------------------------------------------
 
     /**
@@ -502,6 +512,12 @@ public class ProfilePanelController extends Controller implements Initializable 
         loyaltyTokensLabel.setText(String.valueOf(restClient.getUser().getLoyaltyTokens()));
 
         initializeAppointmentTableView();
+
+        // Initialize tokens UI only if user is logged in
+        if (restClient.getUser() != null) {
+            updateTokensDisplay();
+            setupRedeemTokensChoiceBox();
+        }
     }
 
     private void setTableRowAndHeaderHeight() {
@@ -595,6 +611,38 @@ public class ProfilePanelController extends Controller implements Initializable 
             System.err.println("Error creating button: " + e.getMessage());
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void updateTokensDisplay() {
+        if (tokensLabel != null && tokensProgressBar != null && restClient.getUser() != null) {
+            int tokens = restClient.getUser().getTokens();
+            tokensLabel.setText("Available Tokens: " + tokens);
+            tokensProgressBar.setProgress(tokens / 10.0); // Assuming 10 is max tokens
+        }
+    }
+
+    private void setupRedeemTokensChoiceBox() {
+        if (redeemTokensChoiceBox != null && redeemTokensButton != null && restClient.getUser() != null) {
+            int availableTokens = restClient.getUser().getTokens();
+            List<Integer> options = new ArrayList<>();
+            for (int i = 1; i <= availableTokens; i++) {
+                options.add(i);
+            }
+            redeemTokensChoiceBox.setItems(FXCollections.observableArrayList(options));
+            redeemTokensButton.setDisable(availableTokens == 0);
+        }
+    }
+
+    @FXML
+    public void onRedeemActionClicked() {
+        Integer tokensToRedeem = redeemTokensChoiceBox.getValue();
+        if (tokensToRedeem != null) {
+            boolean success = restClient.redeemTokens(tokensToRedeem);
+            if (success) {
+                updateTokensDisplay();
+                setupRedeemTokensChoiceBox();
+            }
         }
     }
 }

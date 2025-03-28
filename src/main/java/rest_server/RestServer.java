@@ -211,8 +211,13 @@ public class RestServer {
                  * FROM customers
                  * WHERE email = email
                  */
-                queryResult = dbConnector.executeSelectQuery(new String[]{"*"},
-                        new String[]{DatabaseConnector.CUSTOMERS}, null, "email = ?", new String[]{email});
+                queryResult = dbConnector.executeSelectQuery(
+                    new String[]{"id", "firstname", "lastname", "email", "tokens"},
+                    new String[]{DatabaseConnector.CUSTOMERS},
+                    null,
+                    "email = ?",
+                    new String[]{email}
+                );
                 if (queryResult.isEmpty()) { // email not found
                     context.status(404);
                     context.json(new String[]{"E-mail not found."});
@@ -425,6 +430,14 @@ public class RestServer {
                     Date parsedScheduledTime;
                     try {
                         parsedScheduledTime = Utils.yearMonthDayTimeFormat.parse(scheduledTime);
+                        
+                        // Add validation for current/future time
+                        Date currentTime = new Date();
+                        if (parsedScheduledTime.before(currentTime)) {
+                            context.status(400);
+                            context.json(new String[]{"Appointment time must be in the future."});
+                            return;
+                        }
                     } catch (ParseException e) {
                         System.err.println("Failed to parse scheduled time: " + e.getMessage());
                         context.status(400);
@@ -480,37 +493,38 @@ public class RestServer {
                             return;
                         }
 
-                        // Increment loyalty tokens for the customer
-                        List<Map<String, Object>> customerResult = dbConnector.executeSelectQuery(
-                                new String[]{"loyalty_tokens"},
-                                new String[]{DatabaseConnector.CUSTOMERS},
-                                null,
-                                "id = ?",
-                                new String[]{customer_id}
+                        // Update tokens after successful appointment creation
+                        List<Map<String, Object>> currentTokens = dbConnector.executeSelectQuery(
+                            new String[]{"tokens"},
+                            new String[]{DatabaseConnector.CUSTOMERS},
+                            null,
+                            "id = ?",
+                            new String[]{customer_id}
                         );
 
-                        int currentTokens = 0;
-                        if (!customerResult.isEmpty() && customerResult.get(0).get("loyalty_tokens") != null) {
-                            currentTokens = ((Number) customerResult.get(0).get("loyalty_tokens")).intValue();
-                        }
-
-                        // Update loyalty tokens with proper query construction
-                        boolean tokenUpdateSuccess = dbConnector.executeUpdateQuery(
-                                DatabaseConnector.CUSTOMERS,
-                                new String[]{"loyalty_tokens = ?"},
-                                new String[]{String.valueOf(currentTokens + 1)},
-                                "id = ?",
-                                new String[]{customer_id}
+                        int tokens = currentTokens.get(0).get("tokens") != null ? 
+                            ((Number) currentTokens.get(0).get("tokens")).intValue() : 0;
+                        
+                        // Add 1 token for the new appointment
+                        dbConnector.executeUpdateQuery(
+                            DatabaseConnector.CUSTOMERS,
+                            new String[]{"tokens = ?"},
+                            new String[]{String.valueOf(tokens + 1)},
+                            "id = ?",
+                            new String[]{customer_id}
                         );
 
-                        if (!tokenUpdateSuccess) {
-                            System.err.println("Failed to update loyalty tokens for customer: " + customer_id);
-                        }
+                        // Return updated user info in response
+                        List<Map<String, Object>> updatedUser = dbConnector.executeSelectQuery(
+                            new String[]{"id", "firstname", "lastname", "email", "tokens"},
+                            new String[]{DatabaseConnector.CUSTOMERS},
+                            null,
+                            "id = ?",
+                            new String[]{customer_id}
+                        );
 
                         context.status(201);
-                        JsonObject response = new JsonObject();
-                        response.addProperty("message", "Appointment created successfully!");
-                        context.json(response);
+                        context.json(updatedUser);
                     } catch (Exception e) {
                         System.err.println("Database error while creating appointment: " + e.getMessage());
                         e.printStackTrace();
@@ -593,17 +607,13 @@ public class RestServer {
                 // validate scheduled time data
                 Date parsedScheduledTime;
                 try {
-                    parsedScheduledTime = Utils.yearMonthDayTimeFormat.parse(scheduledTime); // Change to desired format
-
-                    // Create a date 2 hours before the selected slot for testing
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(parsedScheduledTime);
-                    cal.add(Calendar.HOUR_OF_DAY, 0);  // subtract 2 hours
-                    Date comparisonDate = cal.getTime();
-
-                    // Ensure scheduledTime is not in the past
-                    if (parsedScheduledTime.before(comparisonDate)) {
-                        context.status(400).json(new String[]{"Scheduled time cannot be in the past."});
+                    parsedScheduledTime = Utils.yearMonthDayTimeFormat.parse(scheduledTime);
+                    
+                    // Add validation for current/future time
+                    Date currentTime = new Date();
+                    if (parsedScheduledTime.before(currentTime)) {
+                        context.status(400);
+                        context.json(new String[]{"Appointment time must be in the future."});
                         return;
                     }
                 } catch (ParseException e) {
@@ -951,6 +961,86 @@ public class RestServer {
 
             context.status(200);
             context.json(queryResult);
+        });
+
+        // Add endpoint for getting tokens
+        javalinApp.get("/customer/tokens", context -> {
+            String customer_id = context.queryParam(StringNames.customer_id);
+            String authString = context.header(StringNames.authorization);
+
+            if (customer_id != null) {
+                if (!dataVal.isUserAuthorized(authString, customer_id)) {
+                    context.status(401);
+                    context.json(new String[]{"User is not authorized to perform this action."});
+                    return;
+                }
+
+                List<Map<String, Object>> result = dbConnector.executeSelectQuery(
+                    new String[]{"tokens"},
+                    new String[]{DatabaseConnector.CUSTOMERS},
+                    null,
+                    "id = ?",
+                    new String[]{customer_id}
+                );
+
+                if (result.isEmpty()) {
+                    context.status(404);
+                    context.json(new String[]{"Customer not found"});
+                    return;
+                }
+
+                context.status(200);
+                context.json(result);
+            }
+        });
+
+        // Add endpoint for redeeming tokens
+        javalinApp.put("/tokens/redeem", context -> {
+            String customer_id = context.queryParam(StringNames.customer_id);
+            String tokensToRedeem = context.queryParam(StringNames.tokens);
+            String authString = context.header(StringNames.authorization);
+
+            if (customer_id != null && tokensToRedeem != null) {
+                if (!dataVal.isUserAuthorized(authString, customer_id)) {
+                    context.status(401);
+                    context.json(new String[]{"User is not authorized to perform this action."});
+                    return;
+                }
+
+                List<Map<String, Object>> currentTokens = dbConnector.executeSelectQuery(
+                    new String[]{"tokens"},
+                    new String[]{DatabaseConnector.CUSTOMERS},
+                    null,
+                    "id = ?",
+                    new String[]{customer_id}
+                );
+
+                int availableTokens = currentTokens.get(0).get("tokens") != null ? 
+                    ((Number) currentTokens.get(0).get("tokens")).intValue() : 0;
+                int requestedTokens = Integer.parseInt(tokensToRedeem);
+
+                if (availableTokens < requestedTokens) {
+                    context.status(400);
+                    context.json(new String[]{"Not enough tokens available"});
+                    return;
+                }
+
+                boolean success = dbConnector.executeUpdateQuery(
+                    DatabaseConnector.CUSTOMERS,
+                    new String[]{"tokens = ?"},
+                    new String[]{String.valueOf(availableTokens - requestedTokens)},
+                    "id = ?",
+                    new String[]{customer_id}
+                );
+
+                if (success) {
+                    context.status(200);
+                    context.json(new String[]{"Tokens redeemed successfully"});
+                } else {
+                    context.status(500);
+                    context.json(new String[]{"Failed to redeem tokens"});
+                }
+            }
         });
     }
 

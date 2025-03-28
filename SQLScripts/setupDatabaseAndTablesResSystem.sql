@@ -17,10 +17,11 @@ CREATE TABLE `customers` (
     `security_question_id` int(11) NOT NULL,
     `security_question` text NOT NULL,
     `security_answer` text NOT NULL,
+    `tokens` INT DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `customers_UN` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-ALTER TABLE customers ADD COLUMN loyalty_tokens INT DEFAULT 0;
+
 -- promotions
 CREATE TABLE `promotions` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -144,17 +145,17 @@ CREATE TABLE `qrCodes` (
 -- INSERT DATA
 -- TODO: insert SQL statements to fill tables with exemplary DATA
 
-INSERT INTO reservation_system.customers (firstName, lastName, email, vehicle_registration_number, phone_number, password, security_question_id, security_question, security_answer) VALUES
-('Maximilian','Maier','max.m@gmail.com', 'ABC123', '1234567890', 'yxcvuioq', 1,  'What is your pet\'s name?', 'Fluffy'),
-('Karla','Arrowsmith','karla.a@gmx.de', 'XYZ789', '9876543210', 'kl,.p=q§we', 2,  'What is your mother\'s maiden name?', 'Smith'),
-('Isabel','Raap','raap.i@web.de', 'DEF456', '4567891230', 'vbnmopiu', 3, 'What was the name of your first school?', 'Greenwood'),
-('Ted','Runkel','t.r@gmail.com', 'GHI012', '3216549870', 'erzte89&', 4, 'What city were you born in?', 'New York'),
-('Josephine','Lukowski','josie.luko@gmx.de', 'LMN345', '1597534682', 'qwerasdf', 5, 'What is your favorite food?', 'Pizza'),
-('Hans','Massaro','hans.m@web.de', 'OPQ678', '1478523690', 'qwerqwer', 6,'What is your favorite color?', 'Blue'),
-('Syble','Hocking','hocking.s@gmail.com', 'RST910', '7894561230', 'winter20', 7, 'What was your childhood nickname?', 'Toto'),
-('Crissy','Deaton','d.crissy@gmx.de', 'UVW234', '3698521470', 'summer21', 8, 'What is your favorite movie?', 'Inception'),
-('Edward','Vanmeter','van.ed@web.de', 'XYZ567', '2581473690', 'vfrzum21?', 9, 'What is the name of your best friend?', 'Omar'),
-('Jinny','Toews','toews.j@gmail.com', 'BCD890', '1237894560', 'qwec16%9', 10, 'What was your dream job as a child?', 'Astronaut');
+INSERT INTO reservation_system.customers (firstName, lastName, email, vehicle_registration_number, phone_number, password, security_question_id, security_question, security_answer, tokens) VALUES
+('Maximilian','Maier','max.m@gmail.com', 'ABC123', '1234567890', 'yxcvuioq', 1,  'What is your pet\'s name?', 'Fluffy', 1),
+('Karla','Arrowsmith','karla.a@gmx.de', 'XYZ789', '9876543210', 'kl,.p=q§we', 2,  'What is your mother\'s maiden name?', 'Smith', 1),
+('Isabel','Raap','raap.i@web.de', 'DEF456', '4567891230', 'vbnmopiu', 3, 'What was the name of your first school?', 'Greenwood', 1),
+('Ted','Runkel','t.r@gmail.com', 'GHI012', '3216549870', 'erzte89&', 4, 'What city were you born in?', 'New York', 1),
+('Josephine','Lukowski','josie.luko@gmx.de', 'LMN345', '1597534682', 'qwerasdf', 5, 'What is your favorite food?', 'Pizza', 1),
+('Hans','Massaro','hans.m@web.de', 'OPQ678', '1478523690', 'qwerqwer', 6,'What is your favorite color?', 'Blue', 1),
+('Syble','Hocking','hocking.s@gmail.com', 'RST910', '7894561230', 'winter20', 7, 'What was your childhood nickname?', 'Toto', 1),
+('Crissy','Deaton','d.crissy@gmx.de', 'UVW234', '3698521470', 'summer21', 8, 'What is your favorite movie?', 'Inception', 1),
+('Edward','Vanmeter','van.ed@web.de', 'XYZ567', '2581473690', 'vfrzum21?', 9, 'What is the name of your best friend?', 'Omar', 1),
+('Jinny','Toews','toews.j@gmail.com', 'BCD890', '1237894560', 'qwec16%9', 10, 'What was your dream job as a child?', 'Astronaut', 1);
 
 
 INSERT INTO reservation_system.promotions (description, discountPercentage, validFrom, validTo) VALUES

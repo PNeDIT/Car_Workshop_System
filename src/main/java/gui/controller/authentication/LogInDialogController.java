@@ -51,21 +51,34 @@ public class LogInDialogController extends Controller {
             User user = new User(email, password);
             restClient.setUser(user);
             List<JsonObject> clientInfo = restClient.getUserInfoByMail(email);
-            user.setIdAndName(clientInfo.get(0).get("id").getAsInt(), clientInfo.get(0).get("firstName").getAsString(),
-                    clientInfo.get(0).get("lastName").getAsString());
+            if (clientInfo != null && !clientInfo.isEmpty()) {
+                JsonObject userInfo = clientInfo.get(0);
+                user.setIdAndName(
+                    userInfo.get("id").getAsInt(),
+                    userInfo.get("firstname").getAsString(),
+                    userInfo.get("lastname").getAsString()
+                );
+                
+                // Set tokens from server response
+                if (userInfo.has("tokens")) {
+                    user.setTokens(userInfo.get("tokens").getAsInt());
+                } else {
+                    user.setTokens(0);
+                }
 
-            // load main window and set panel to successful log in panel
-            sceneNavigator.loadCompleteWindow(sceneNavigator.MAIN_WINDOW,
-                    (Stage) emailTextfield.getScene().getWindow());
+                // load main window and set panel to successful log in panel
+                sceneNavigator.loadCompleteWindow(sceneNavigator.MAIN_WINDOW,
+                        (Stage) emailTextfield.getScene().getWindow());
 
-            List<String> controllerData = new ArrayList<>();
-            controllerData.add("Welcome!");
-            controllerData.add("You are now successfully logged in.");
-            if (sceneNavigator.getPreviousScene() != null) {
-                controllerData.add("To reservation");
+                List<String> controllerData = new ArrayList<>();
+                controllerData.add("Welcome!");
+                controllerData.add("You are now successfully logged in.");
+                if (sceneNavigator.getPreviousScene() != null) {
+                    controllerData.add("To reservation");
+                }
+                sceneNavigator.loadSceneToMainWindow(sceneNavigator.SUCCESS_PANEL, controllerData);
+                sceneNavigator.loadToolBar(sceneNavigator.LOG_OUT_BAR);
             }
-            sceneNavigator.loadSceneToMainWindow(sceneNavigator.SUCCESS_PANEL, controllerData);
-            sceneNavigator.loadToolBar(sceneNavigator.LOG_OUT_BAR);
         }
     }
 

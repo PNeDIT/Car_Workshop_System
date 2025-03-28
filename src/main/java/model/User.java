@@ -16,6 +16,7 @@ public class User {
     private String password;
     private String authorization;
     private int loyaltyTokens;
+    private int tokens;
 
     /**
      * Used on log in/sign up, so that authorization is already created and
@@ -46,6 +47,21 @@ public class User {
         String auth = email + ":" + password;
         String authEnc = Base64.getEncoder().encodeToString(auth.getBytes());
         this.authorization = "Basic " + authEnc;
+    }
+
+    // Primary constructor
+    public User(int id, String firstName, String lastName, String email, String authorization, int tokens) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.authorization = authorization;
+        this.tokens = tokens;
+    }
+
+    // Secondary constructor
+    public User(int id, String firstName, String lastName, String email, String authorization) {
+        this(id, firstName, lastName, email, authorization, 0); // Initialize tokens to 0
     }
 
     // GETTER and SETTERS
@@ -120,6 +136,14 @@ public class User {
         this.loyaltyTokens = loyaltyTokens;
     }
 
+    public int getTokens() {
+        return tokens;
+    }
+
+    public void setTokens(int tokens) {
+        this.tokens = tokens;
+    }
+
     /**
      * Updates the loyalty tokens based on the user's appointment history
      * @param appointmentCount the number of appointments the user has made
@@ -130,7 +154,14 @@ public class User {
 
     @Override
     public String toString() {
-        return "Session [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", authorization='" + authorization + '\'' +
+                ", tokens=" + tokens +
+                '}';
     }
 
 }

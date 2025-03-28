@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.IntStream;
+import javafx.scene.control.DateCell;
 
 /**
  * Controller for managing reservations of workshop services.
@@ -145,19 +146,45 @@ public class AppointmentPanelController extends Controller {
             reserveButton.setDisable(newSelection == null);
         });
 
-        // Initialize date picker with current date
-        datePicker.setValue(LocalDate.now());
+        // Initialize date picker with the scheduled date and disable past dates
+        try {
+            // Parse the scheduled time to get the date
+            Date scheduledDate = Utils.yearMonthDayTimeFormat.parse(String.valueOf(data.get(7)));
+            LocalDate localDate = scheduledDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            
+            // Set the date picker to the scheduled date
+            datePicker.setValue(localDate);
+            
+            // Disable only dates before today
+            datePicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    LocalDate today = LocalDate.now();
+                    setDisable(empty || date.isBefore(today));
+                    if (date.isBefore(today)) {
+                        setStyle("-fx-background-color: #ffc0cb;"); // Light gray for past dates
+                    }
+                }
+            });
 
-        // Add listener for date changes
-        datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // Convert LocalDate to Date at start of day
-                Date selectedDate = Date.from(newValue.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                loadAvailableAppointments(selectedDate, workshop_id, service_id);
-            }
-        });
+            // Add listener for date changes
+            datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    Date selectedDate = Date.from(newValue.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    loadAvailableAppointments(selectedDate, workshop_id, service_id);
+                }
+            });
 
-        loadAvailableAppointments(oldScheduledTime != null ? oldScheduledTime : new Date(), workshop_id, service_id);
+            // Load available appointments for the initially selected date
+            loadAvailableAppointments(scheduledDate, workshop_id, service_id);
+
+        } catch (ParseException e) {
+            System.err.println("Error parsing scheduled date: " + e.getMessage());
+            // If parsing fails, set to current date as fallback
+            datePicker.setValue(LocalDate.now());
+            loadAvailableAppointments(new Date(), workshop_id, service_id);
+        }
     }
 
     /**
@@ -175,11 +202,21 @@ public class AppointmentPanelController extends Controller {
             // Convert the slots to the selected date
             LocalDate selectedDate = datePicker.getValue();
             List<String> adjustedSlots = new ArrayList<>();
+            Date currentTime = new Date();
 
+            // Store the currently scheduled time for comparison
+            String currentScheduledTime = scheduledTimeLabel.getText();
+            
             for (String slot : availableSlots) {
                 try {
                     // Parse the original time
                     Date originalDate = Utils.yearMonthDayTimeFormat.parse(slot);
+                    
+                    // Only skip slots that are in the past compared to current time
+                    if (originalDate.before(currentTime)) {
+                        continue;
+                    }
+
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(originalDate);
 
@@ -189,9 +226,13 @@ public class AppointmentPanelController extends Controller {
                     newCal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
                     newCal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
 
-                    // Format the new date
-                    String adjustedSlot = Utils.yearMonthDayTimeFormat.format(newCal.getTime());
-                    adjustedSlots.add(adjustedSlot);
+                    Date adjustedDate = newCal.getTime();
+                    
+                    // Add all slots that are not before current time
+                    if (!adjustedDate.before(currentTime)) {
+                        String adjustedSlot = Utils.yearMonthDayTimeFormat.format(adjustedDate);
+                        adjustedSlots.add(adjustedSlot);
+                    }
                 } catch (ParseException e) {
                     System.err.println("Error adjusting date for slot: " + slot);
                     e.printStackTrace();
@@ -201,6 +242,20 @@ public class AppointmentPanelController extends Controller {
             Platform.runLater(() -> {
                 appointmentsTableView.getItems().clear();
                 appointmentsTableView.getItems().addAll(adjustedSlots);
+                
+                // Select the previously scheduled time if it exists in the new list
+                if (currentScheduledTime != null && !currentScheduledTime.isEmpty()) {
+                    for (String slot : adjustedSlots) {
+                        if (slot.equals(currentScheduledTime)) {
+                            appointmentsTableView.getSelectionModel().select(slot);
+                            break;
+                        }
+                    }
+                }
+                
+                // Enable/disable reserve button based on selection
+                reserveButton.setDisable(appointmentsTableView.getSelectionModel().isEmpty());
+                
                 appointmentsTableView.refresh();
             });
         } catch (UnirestException e) {
@@ -213,60 +268,59 @@ public class AppointmentPanelController extends Controller {
      */
     @FXML
     public void onReserveButtonClicked() {
-        String slotSelected = appointmentsTableView.getSelectionModel().getSelectedItem();
+        // Check if user is logged in
+        if (restClient.getUser() == null) {
+            noModificationLabel.setText("Please log in to make an appointment");
+            return;
+        }
 
+        String slotSelected = appointmentsTableView.getSelectionModel().getSelectedItem();
         if (slotSelected == null) {
             noModificationLabel.setText("No appointment slot selected!");
             return;
         }
-        List<String> controllerData = new ArrayList<>();
 
-        // Convert oldScheduledTime (Date) to String using the same format as slotSelected
-        String oldScheduledTimeString = (oldScheduledTime != null) ? Utils.yearMonthDayTimeFormat.format(oldScheduledTime) : "";
-        if (sceneNavigator.getPreviousScene() != null
-                && sceneNavigator.getPreviousScene().equals(sceneNavigator.PROFILE)) {
-            if (slotSelected.equals(oldScheduledTimeString)) {
-                noModificationLabel.setText("No changes were made.");
-            } else {
-                try {
-                    Date slotSelectedAsDate = Utils.yearMonthDayTimeFormat.parse(slotSelected);
-                    String formattedSlot = Utils.yearMonthDayTimeFormat.format(slotSelectedAsDate);
-                    Date parsedBackDate = Utils.yearMonthDayTimeFormat.parse(formattedSlot);
+        try {
+            Date slotSelectedAsDate = Utils.yearMonthDayTimeFormat.parse(slotSelected);
+            Date currentTime = new Date();
 
-                    boolean success = restClient.modifyAppointment(appointment_id, parsedBackDate, paymentMethodLabel.getText());
-                    if (success) {
-                        controllerData.add("Appointment Updated Successfully");
-                        controllerData.add("Your service reservation was successfully updated.");
-                        controllerData.add("Continue");
-                        controllerData.add(sceneNavigator.PROFILE); // Add target scene for redirection
-                        sceneNavigator.loadSceneToMainWindow(sceneNavigator.SUCCESS_PANEL, controllerData);
-                    } else {
+            // Validate that selected time is not in the past
+            if (slotSelectedAsDate.before(currentTime)) {
+                noModificationLabel.setText("Cannot create/modify appointment for past time!");
+                return;
+            }
+
+            List<String> controllerData = new ArrayList<>();
+
+            // Convert oldScheduledTime (Date) to String using the same format as slotSelected
+            String oldScheduledTimeString = (oldScheduledTime != null) ? Utils.yearMonthDayTimeFormat.format(oldScheduledTime) : "";
+            if (sceneNavigator.getPreviousScene() != null
+                    && sceneNavigator.getPreviousScene().equals(sceneNavigator.PROFILE)) {
+                if (slotSelected.equals(oldScheduledTimeString)) {
+                    noModificationLabel.setText("No changes were made.");
+                } else {
+                    try {
+                        Date parsedBackDate = Utils.yearMonthDayTimeFormat.parse(slotSelected);
+
+                        boolean success = restClient.modifyAppointment(appointment_id, parsedBackDate, paymentMethodLabel.getText());
+                        if (success) {
+                            controllerData.add("Appointment Updated Successfully");
+                            controllerData.add("Your service reservation was successfully updated.");
+                            controllerData.add("Continue");
+                            controllerData.add(sceneNavigator.PROFILE); // Add target scene for redirection
+                            sceneNavigator.loadSceneToMainWindow(sceneNavigator.SUCCESS_PANEL, controllerData);
+                        } else {
+                            noModificationLabel.setText("Failed to update appointment. Please try again.");
+                        }
+                    } catch (ParseException e) {
+                        System.err.println("Invalid date format: " + slotSelected);
+                        noModificationLabel.setText("Invalid date format. Please try again.");
+                    } catch (UnirestException e) {
+                        System.err.println("Failed to modify appointment: " + e.getMessage());
                         noModificationLabel.setText("Failed to update appointment. Please try again.");
                     }
-                } catch (ParseException e) {
-                    System.err.println("Invalid date format: " + slotSelected);
-                    noModificationLabel.setText("Invalid date format. Please try again.");
-                } catch (UnirestException e) {
-                    System.err.println("Failed to modify appointment: " + e.getMessage());
-                    noModificationLabel.setText("Failed to update appointment. Please try again.");
                 }
-            }
-        } else {
-            try {
-                Date slotSelectedAsDate = Utils.yearMonthDayTimeFormat.parse(slotSelected);
-
-                // Create a date 2 hours before the selected slot for testing
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(slotSelectedAsDate);
-                cal.add(Calendar.HOUR_OF_DAY, -2);  // subtract 2 hours
-                Date comparisonDate = cal.getTime();
-
-                // Check if the selected time is in the past using our test comparison date
-                if (slotSelectedAsDate.before(comparisonDate)) {
-                    noModificationLabel.setText("Cannot create appointment in the past!");
-                    return;
-                }
-
+            } else {
                 // Hardcode payment method for testing
                 String paymentMethod = "Cash";  // Valid payment method
 
@@ -278,30 +332,32 @@ public class AppointmentPanelController extends Controller {
                     controllerData.add("Continue");
                     controllerData.add(sceneNavigator.PROFILE);
 
-                    // Refresh the user's loyalty tokens from the server
+                    // Update to use 'tokens' instead of 'loyalty_tokens'
                     List<JsonObject> userInfo = restClient.getUserInfoByMail(restClient.getUser().getEmail());
                     if (userInfo != null && !userInfo.isEmpty()) {
-                        int updatedTokens = userInfo.get(0).get("loyalty_tokens").getAsInt();
-                        restClient.getUser().setLoyaltyTokens(updatedTokens);
+                        JsonObject info = userInfo.get(0);
+                        if (info.has("tokens")) {  // Check if tokens field exists
+                            int updatedTokens = info.get("tokens").getAsInt();
+                            restClient.getUser().setTokens(updatedTokens);
+                        }
                     }
 
                     sceneNavigator.loadSceneToMainWindow(sceneNavigator.SUCCESS_PANEL, controllerData);
                 } else {
                     noModificationLabel.setText("Failed to create appointment. Please try again.");
                 }
-            } catch (ParseException e) {
-                System.err.println("Invalid date format: " + slotSelected);
-                e.printStackTrace();
-                noModificationLabel.setText("Invalid date format. Please try again.");
-            } catch (UnirestException e) {
-                System.err.println("Failed to create appointment: " + e.getMessage());
-                e.printStackTrace();
-                noModificationLabel.setText("Failed to create appointment. Please try again.");
-            } catch (Exception e) {
-                System.err.println("Unexpected error during appointment creation: " + e.getMessage());
-                e.printStackTrace();
-                noModificationLabel.setText("An unexpected error occurred. Please try again.");
             }
+        } catch (ParseException e) {
+            System.err.println("Invalid date format: " + slotSelected);
+            noModificationLabel.setText("Invalid date format. Please try again.");
+        } catch (UnirestException e) {
+            System.err.println("Failed to create appointment: " + e.getMessage());
+            e.printStackTrace();
+            noModificationLabel.setText("Failed to create appointment. Please try again.");
+        } catch (Exception e) {
+            System.err.println("Unexpected error during appointment creation: " + e.getMessage());
+            e.printStackTrace();
+            noModificationLabel.setText("An unexpected error occurred. Please try again.");
         }
     }
 

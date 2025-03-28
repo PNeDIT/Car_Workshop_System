@@ -25,6 +25,6 @@ public class StringNames {
     public static String customer_id = "customer_id";
     public static String technician_id = " technician_id";
     public  static String appointment_id = "appointment_id";
-
+    public static final String tokens = "tokens";
 
 }
